@@ -1,47 +1,73 @@
-# provides all the functionality for our API.
 from fastapi import FastAPI
 
 app = FastAPI()
 
-# http method lainnya .post() .put() .delete() .get() .options() .head() .patch() .trace()
-@app.get("/")
-async def root():
-    return {"message": "Hello World"}
+fake_items_db = [{"item_name": "Foo"}, {"item_name": "Bar"}, {"item_name": "Baz"}]
 
+
+@app.get("/items/")
+# default for skip is 0 and limit is 10
+async def read_item(skip: int = 0, limit: int = 10):
+    return fake_items_db[skip : skip + limit]
+
+"""
+optional query parameters
+q will be optional, and will be None by default
+"""
+from typing import Union
 
 @app.get("/items/{item_id}")
-# catch path param with argument func (item_id param read_item func will catch item_id data url) but the data from url is not define data type
-async def read_item(item_id):
+# for python 3.6
+async def read_item(item_id: str, q: Union[str, None] = None):
+# for python 3.10
+# async def read_item(item_id: str, q: str | None = None):
+    if q:
+        return {"item_id": item_id, "q": q}
     return {"item_id": item_id}
 
-@app.get("/search/item/{item_id}")
-# catch path param with argument func (item_id param read_item func will catch item_id data url).
-# and the data from url is must int
-async def read_item(item_id: int):
-    return {"item_id": item_id}
+# for bool types will be convert. short can be foo?short=1 foo?short=yes foo?short=True foo?short=true foo?short=on
+@app.get("/items/{item_id}")
+# 3.6
+async def read_item(item_id: str, q: Union[str, None] = None, short: bool = False):
+# 3.10
+# async def read_item(item_id: str, q: str | None = None, short: bool = False):
+    item = {"item_id": item_id}
+    if q:
+        item.update({"q": q})
+    if not short:
+        item.update(
+            {"description": "This is an amazing item that has a long description"}
+        )
+    return item
 
-# pilih salah satu data dari list data (like gender, tingkatan/level). contoh model ml yg bisa dipilih
-from enum import Enum
-# list of model ML
-class ModelName(str, Enum):
-    alexnet = "alexnet"
-    resnet = "resnet"
-    lenet = "lenet"
-@app.get("/models/{model_name}")
-async def get_model(model_name: ModelName):
-    if model_name == ModelName.alexnet:
-        return {"model_name": model_name, "message": "Deep Learning FTW!"}
+# multiple path parameters and query parameters at the same time
+# user_id is path param, item_id is query param
+@app.get("/users/{user_id}/items/{item_id}")
+async def read_user_item(
+    user_id: int, item_id: str, q: Union[str, None] = None, short: bool = False
+):
+# 3.10
+# async def read_user_item(user_id: int, item_id: str, q: str | None = None, short: bool = False):
+    item = {"item_id": item_id, "owner_id": user_id}
+    if q:
+        item.update({"q": q})
+    if not short:
+        item.update(
+            {"description": "This is an amazing item that has a long description"}
+        )
+    return item
 
-    if model_name.value == "lenet":
-        return {"model_name": model_name, "message": "LeCNN all the images"}
-
-    return {"model_name": model_name, "message": "Have some residuals"}
-
-"""
-path param untuk file
-ex path file home/johndoe/myfile.txt & url is /files/{file_path}
-so url will be /files/home/johndoe/myfile.txt
-"""
-@app.get("/files/{file_path:path}")
-async def read_file(file_path: str):
-    return {"file_path": file_path}
+# make a query parameter required, not declare any default value
+@app.get("/nodefault/required/items/{item_id}")
+async def read_user_item(item_id: str, needy: str):
+    item = {"item_id": item_id, "needy": needy}
+    return item
+# define some parameters as required, some as having a default value, and some entirely optional:
+@app.get("/campuran/items/{item_id}")
+async def read_user_item(
+    item_id: str, needy: str, skip: int = 0, limit: Union[int, None] = None
+):
+# 3.10
+# async def read_user_item(item_id: str, needy: str, skip: int = 0, limit: int | None = None):
+    item = {"item_id": item_id, "needy": needy, "skip": skip, "limit": limit}
+    return item

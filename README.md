@@ -7,7 +7,6 @@ update => virtualenv\Scripts\python.exe -m pip install --upgrade pip<br>
 run => uvicorn main:app --reload<br>
 * dimana main adlah file main.py & app adlah FastAPI()<br>
 
-# path param
-ex the param is foo => http://127.0.0.1:8000/items/foo<br>
-path param select data from list => /models/{model_name}<br>
-path param for file => /files/{file_path}<br>
+# query parameter
+http://127.0.0.1:8000/items/?skip=0&limit=10 ==  http://127.0.0.1:8000/items/ <br>
+query param are skip & limit (after quetion mark "?"). default for skip and limit for our case are 10<br>
