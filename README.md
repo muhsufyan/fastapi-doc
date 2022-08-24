@@ -11,5 +11,6 @@ di python 3.6, OR pd param func menggunakan union<br>
 => q: Union[str, None] = None<br>
 sedangkan untuk 3.10<br>
 =>  q: str | None = None
-# validasi query param untuk string
-data pada query param harus divalidasi ex min & max karakter, regex
+# Path Parameters and Numeric Validations
+can declare more validations and metadata for query parameters with Query, you can declare the same type of validations and metadata for path parameters with Path
+# 2 lagi belum beres karena itu trik & recommendation
