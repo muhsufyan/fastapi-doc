@@ -6,7 +6,10 @@ pip install "fastapi[all]" <br>
 update => virtualenv\Scripts\python.exe -m pip install --upgrade pip<br>
 run => uvicorn main:app --reload<br>
 * dimana main adlah file main.py & app adlah FastAPI()<br>
-
-# request body
-untuk menangkap data request dr body maka gunakan pydantic, sehingga harus menggunakan BaseModel dari pydantic.
-jika tdk memakai pydantic maka gunakan Body parameters dibagian Body - Multiple Parameters
+# note
+di python 3.6, OR pd param func menggunakan union<br>
+=> q: Union[str, None] = None<br>
+sedangkan untuk 3.10<br>
+=>  q: str | None = None
+# validasi query param untuk string
+data pada query param harus divalidasi ex min & max karakter, regex
