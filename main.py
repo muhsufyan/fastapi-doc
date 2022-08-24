@@ -1,73 +1,51 @@
+from typing import Union
 from fastapi import FastAPI
+from pydantic import BaseModel
+
+# declare data model as a class that inherits from BaseModel. data model ini digunakan untuk catch data dari request body. ini juga berguna untuk validasi data
+class Item(BaseModel):
+    name: str
+    description: Union[str, None] = None
+    # 3.10
+    # description: str | None = None
+    price: float
+    tax: Union[float, None] = None
+    # 3.10
+    # tax: float | None = None
 
 app = FastAPI()
 
-fake_items_db = [{"item_name": "Foo"}, {"item_name": "Bar"}, {"item_name": "Baz"}]
+@app.post("/items/")
+# declare data model as param so can catch the data from request body
+async def create_item(item: Item):
+    return item
 
+# gunakan data model, ex menghitung tax
+@app.post("/usedatamodel/items/")
+async def create_item(item: Item):
+    item_dict = item.dict()
+    # jika ada data tax
+    if item.tax:
+        price_with_tax = item.price + item.tax
+        item_dict.update({"price_with_tax": price_with_tax})
+    return item_dict
 
-@app.get("/items/")
-# default for skip is 0 and limit is 10
-async def read_item(skip: int = 0, limit: int = 10):
-    return fake_items_db[skip : skip + limit]
+# request body + path param
+@app.put("/reqbody/pathparam/items/{item_id}")
+async def create_item(item_id: int, item: Item):
+    return {"item_id": item_id, **item.dict()}
 
+# request body + path param + query param
 """
-optional query parameters
-q will be optional, and will be None by default
+If the parameter is also declared in the path, it will be used as a path parameter.
+If the parameter is of a singular type (like int, float, str, bool, etc) it will be interpreted as a query parameter.
+If the parameter is declared to be of the type of a Pydantic model, it will be interpreted as a request body.
 """
-from typing import Union
-
-@app.get("/items/{item_id}")
-# for python 3.6
-async def read_item(item_id: str, q: Union[str, None] = None):
-# for python 3.10
-# async def read_item(item_id: str, q: str | None = None):
+@app.put("/reqbody/pathparam/queryparam/items/{item_id}")
+async def create_item(item_id: int, item: Item, q: str | None = None):
+    # 3.6
+# async def create_item(item_id: int, item: Item, q: Union[str, None] = None):
+    result = {"item_id": item_id, **item.dict()}
     if q:
-        return {"item_id": item_id, "q": q}
-    return {"item_id": item_id}
-
-# for bool types will be convert. short can be foo?short=1 foo?short=yes foo?short=True foo?short=true foo?short=on
-@app.get("/items/{item_id}")
-# 3.6
-async def read_item(item_id: str, q: Union[str, None] = None, short: bool = False):
-# 3.10
-# async def read_item(item_id: str, q: str | None = None, short: bool = False):
-    item = {"item_id": item_id}
-    if q:
-        item.update({"q": q})
-    if not short:
-        item.update(
-            {"description": "This is an amazing item that has a long description"}
-        )
-    return item
-
-# multiple path parameters and query parameters at the same time
-# user_id is path param, item_id is query param
-@app.get("/users/{user_id}/items/{item_id}")
-async def read_user_item(
-    user_id: int, item_id: str, q: Union[str, None] = None, short: bool = False
-):
-# 3.10
-# async def read_user_item(user_id: int, item_id: str, q: str | None = None, short: bool = False):
-    item = {"item_id": item_id, "owner_id": user_id}
-    if q:
-        item.update({"q": q})
-    if not short:
-        item.update(
-            {"description": "This is an amazing item that has a long description"}
-        )
-    return item
-
-# make a query parameter required, not declare any default value
-@app.get("/nodefault/required/items/{item_id}")
-async def read_user_item(item_id: str, needy: str):
-    item = {"item_id": item_id, "needy": needy}
-    return item
-# define some parameters as required, some as having a default value, and some entirely optional:
-@app.get("/campuran/items/{item_id}")
-async def read_user_item(
-    item_id: str, needy: str, skip: int = 0, limit: Union[int, None] = None
-):
-# 3.10
-# async def read_user_item(item_id: str, needy: str, skip: int = 0, limit: int | None = None):
-    item = {"item_id": item_id, "needy": needy, "skip": skip, "limit": limit}
-    return item
+        result.update({"q": q})
+    return result
