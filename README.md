@@ -11,6 +11,5 @@ di python 3.6, OR pd param func menggunakan union<br>
 => q: Union[str, None] = None<br>
 sedangkan untuk 3.10<br>
 =>  q: str | None = None
-# Path Parameters and Numeric Validations
-can declare more validations and metadata for query parameters with Query, you can declare the same type of validations and metadata for path parameters with Path
-# 2 lagi belum beres karena itu trik & recommendation
+# Body - Multiple Parameters
+you can mix Path, Query and request body parameter declarations freely and FastAPI will know what to do.
