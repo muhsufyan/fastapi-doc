@@ -12,5 +12,5 @@ di python 3.6, OR pd param func menggunakan union<br>
 => q: Union[str, None] = None<br>
 sedangkan untuk 3.10<br>
 =>  q: str | None = None
-# Cookie Parameters
-define Cookie parameters the same way you define Query and Path parameters
+# Headers Parameters
+can define Header parameters the same way you define Query, Path and Cookie parameters.
