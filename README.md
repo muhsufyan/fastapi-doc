@@ -1,4 +1,5 @@
-# fastapi-doc
+# fastapi-doc bagian 2
+membahas cookies, headers, response ke user, kode http response
 ## how to run
 python -m venv virtualenv<br>
 windows => .\virtualenv\Scripts\activate.bat<br>
@@ -11,4 +12,5 @@ di python 3.6, OR pd param func menggunakan union<br>
 => q: Union[str, None] = None<br>
 sedangkan untuk 3.10<br>
 =>  q: str | None = None
-# Declare Request Example Data + extra data (tipe data lainnya)
+# Cookie Parameters
+define Cookie parameters the same way you define Query and Path parameters
