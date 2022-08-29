@@ -3,180 +3,168 @@ from pydantic import BaseModel
 
 app = FastAPI()
 
-# List fields
+
 class Item(BaseModel):
     name: str
     description: str | None = None
     price: float
     tax: float | None = None
-    # define an attribute to be a subtype with list. This will make tags be a list.  define an attribute to be a subtype
-    tags: list = []
+#  can declare an example for a Pydantic model using Config and schema_extra
+    class Config:
+        schema_extra = {
+            "example": {
+                "name": "Foo",
+                "description": "A very nice Item",
+                "price": 35.4,
+                "tax": 3.2,
+            }
+        }
 
-@app.put("/listfields/items/{item_id}")
+
+@app.put("/items/{item_id}")
 async def update_item(item_id: int, item: Item):
     results = {"item_id": item_id, "item": item}
     return results
 
-# List fields with type parameter
-# declare lists with internal types, or "type parameters". 
-from typing import List, Union
-
+# Field additional arguments
+# When using Field() with Pydantic models, you can also declare extra info for the JSON Schema by passing any other arbitrary arguments to the function
+from pydantic import Field
 class Item2(BaseModel):
-    name: str
-    description: Union[str, None] = None
-    price: float
-    tax: Union[float, None] = None
-    # use list to declare these type annotations
-    tags: List[str] = []
+    # add example for each field. cara lain selain menggunakan Config and schema_extra
+    name: str = Field(example="Foo")
+    description: str | None = Field(default=None, example="A very nice Item")
+    price: float = Field(example=35.4)
+    tax: float | None = Field(default=None, example=3.2)
 
 
-@app.put("/withp=typeparam/items/{item_id}")
+@app.put("/fieldaddarg/items/{item_id}")
 async def update_item(item_id: int, item: Item2):
     results = {"item_id": item_id, "item": item}
     return results
 
-# Declare a list with a type parameter
-# ex listnya (atau dict, tuple) berupa string/int
-# => my_list: list[str] untuk v 3.9 keatas
-# => from typing import List; my_list: List[str] untuk v 3.6
+# example and examples in OpenAPI
+"""
+When using any of:
+Path(), Query(), Header(), Cookie(), Body(), Form(), File()
+you can also declare a data example or a group of examples with additional information that will be added to OpenAPI.
+"""
+# Body with example
+
+from fastapi import Body
 class Item3(BaseModel):
     name: str
     description: str | None = None
     price: float
     tax: float | None = None
-    tags: list[str] = []
 
 
-@app.put("/declaretypelistparam/items/{item_id}")
-async def update_item(item_id: int, item: Item3):
+@app.put("/bodydgex/items/{item_id}")
+async def update_item(
+    item_id: int,
+    # pass an example of the data expected in Body()
+    item: Item3 = Body(
+        example={
+            "name": "Foo",
+            "description": "A very nice Item",
+            "price": 35.4,
+            "tax": 3.2,
+        },
+    ),
+):
     results = {"item_id": item_id, "item": item}
     return results
 
-# Set types
-# for make list (tags) is unique use "set"
-class Item4(BaseModel):
-    name: str
-    description: str | None = None
-    price: float
-    tax: float | None = None
-    # declare tags as a set of strings
-    tags: set[str] = set()
-
+# Body with multiple examples
+# pass examples using a dict with multiple examples, each with extra information that will be added to OpenAPI too
 """
-now if you receive a request with duplicate data, it will be converted to a set of unique items.
+Each specific example dict in the examples can contain:
 
-And whenever you output that data, even if the source had duplicates, it will be output as a set of unique items.
-
-And it will be annotated / documented accordingly too.
+summary: Short description for the example.
+description: A long description that can contain Markdown text.
+value: This is the actual example shown, e.g. a dict.
+externalValue: alternative to value, a URL pointing to the example. Although this might not be supported by as many tools as value.
 """
-@app.put("/settypes/items/{item_id}")
-async def update_item(item_id: int, item: Item4):
+@app.put("/bodydgmultipleex/items/{item_id}")
+async def update_item(
+    *,
+    item_id: int,
+    item: Item3 = Body(
+        examples={
+            "normal": {
+                "summary": "A normal example",
+                "description": "A **normal** item works correctly.",
+                "value": {
+                    "name": "Foo",
+                    "description": "A very nice Item",
+                    "price": 35.4,
+                    "tax": 3.2,
+                },
+            },
+            "converted": {
+                "summary": "An example with converted data",
+                "description": "FastAPI can convert price `strings` to actual `numbers` automatically",
+                "value": {
+                    "name": "Bar",
+                    "price": "35.4",
+                },
+            },
+            "invalid": {
+                "summary": "Invalid data is rejected with an error",
+                "value": {
+                    "name": "Baz",
+                    "price": "thirty five point four",
+                },
+            },
+        },
+    ),
+):
     results = {"item_id": item_id, "item": item}
     return results
 
-# Nested Models 
-# maksud model disini adlh data model.
-# setiap atribut dari pydantic memiliki tipe data bahkan tipe data dari data model lainnya
-# define sub model (data model image as sub data model to Item5 data model)
-class Image(BaseModel):
-    url: str
-    name: str
+# tipe data lainnya
+# terdpt tipe data lainnya selain int, str, dll. 
+# liat bagian ini https://fastapi.tiangolo.com/tutorial/extra-data-types/ untuk penjelasan
+from datetime import datetime, time, timedelta
+from uuid import UUID
+@app.put("/othertype/items/{item_id}")
+async def read_items(
+    # contoh tipe data yg lainnya
+    item_id: UUID,
+    start_datetime: datetime | None = Body(default=None),
+    end_datetime: datetime | None = Body(default=None),
+    repeat_at: time | None = Body(default=None),
+    process_after: timedelta | None = Body(default=None),
+):
+    start_process = start_datetime + process_after
+    duration = end_datetime - start_process
+    return {
+        "item_id": item_id,
+        "start_datetime": start_datetime,
+        "end_datetime": end_datetime,
+        "repeat_at": repeat_at,
+        "process_after": process_after,
+        "start_process": start_process,
+        "duration": duration,
+    }
 
-
-class Item5(BaseModel):
-    name: str
-    description: str | None = None
-    price: float
-    tax: float | None = None
-    tags: set[str] = set()
-    # atribut image is sub model type are data model Image & Use the submodel as a type
-    image: Image | None = None
-
-
-@app.put("/submodel/items/{item_id}")
-async def update_item(item_id: int, item: Item5):
-    results = {"item_id": item_id, "item": item}
-    return results
-"""
-dg demikian kita telah melakukan
-Editor support (completion, etc), even for nested models
-Data conversion
-Data validation
-Automatic documentation
-"""
-
-# # Special types and validation
-# # untuk melihat validasi tipe data lainnya https://pydantic-docs.helpmanual.io/usage/types/
-
-from pydantic import HttpUrl 
-class Image2(BaseModel):
-    # contoh data model Image memiliki field bertipe url (string will be checked to be a valid URL)
-    url: HttpUrl
-    name: str
-
-
-class Itemss(BaseModel):
-    name: str
-    description: str | None = None
-    price: float
-    tax: float | None = None
-    tags: set[str] = set()
-    image: Image2 | None = None
-
-
-@app.put("/tipespesialdanvalidasi/items/{item_id}")
-async def update_item(item_id: int, item: Itemss):
-    results = {"item_id": item_id, "item": item}
-    return results
-
-# Attributes with lists of submodels
-class Item7(BaseModel):
-    name: str
-    description: str | None = None
-    price: float
-    tax: float | None = None
-    tags: set[str] = set()
-    #  use Pydantic models as subtypes of list, set, etc
-    images: list[Image2] | None = None
-
-
-@app.put("/atributdglistsofsubmodels/items/{item_id}")
-async def update_item(item_id: int, item: Item7):
-    results = {"item_id": item_id, "item": item}
-    return results
-
-# Deeply nested models
-class Offer(BaseModel):
-    name: str
-    description: str | None = None
-    price: float
-    items: list[Item7]
-
-
-@app.post("/offers/")
-async def create_offer(offer: Offer):
-    return offer
-
-# Bodies of pure lists
-"""
-If the top level value of the JSON body you expect is a JSON array (a Python list),
-you can declare the type in the parameter of the function, the same as in Pydantic models:
-images: List[Image]
-or in Python 3.9 and above:
-images: list[Image]
-"""
-@app.post("/images/multiple/")
-# ini dia
-async def create_multiple_images(images: list[Image2]):
-    return images
-
-# Bodies of arbitrary dict
-"""
-You can also declare a body as a dict with keys of some type and values of other type
-This would be useful if you want to receive keys that you don't already know.
-"""
-@app.post("/index-weights/")
-# weight adlh dictionary dg jenis int dan float (2 tipe yg berbeda). 
-# you would accept any dict as long as it has int keys with float values
-async def create_index_weights(weights: dict[int, float]):
-    return weights
+# kita juga bisa melakukan manipulasi/suatu proses
+@app.put("/manipulation/items/{item_id}")
+async def read_items(
+    item_id: UUID,
+    start_datetime: datetime | None = Body(default=None),
+    end_datetime: datetime | None = Body(default=None),
+    repeat_at: time | None = Body(default=None),
+    process_after: timedelta | None = Body(default=None),
+):
+# proses / manipulasi (kalkulasi)
+    start_process = start_datetime + process_after
+    duration = end_datetime - start_process
+    return {
+        "item_id": item_id,
+        "start_datetime": start_datetime,
+        "end_datetime": end_datetime,
+        "repeat_at": repeat_at,
+        "process_after": process_after,
+        "start_process": start_process,
+        "duration": duration,
+    }

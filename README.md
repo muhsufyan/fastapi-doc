@@ -11,5 +11,4 @@ di python 3.6, OR pd param func menggunakan union<br>
 => q: Union[str, None] = None<br>
 sedangkan untuk 3.10<br>
 =>  q: str | None = None
-# Body - Nested Models
-kita bisa melakukan validate, document menggunakan pydantic.
+# Declare Request Example Data + extra data (tipe data lainnya)
