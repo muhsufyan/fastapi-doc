@@ -70,7 +70,7 @@ And whenever you output that data, even if the source had duplicates, it will be
 And it will be annotated / documented accordingly too.
 """
 @app.put("/settypes/items/{item_id}")
-async def update_item(item_id: int, item: Item):
+async def update_item(item_id: int, item: Item4):
     results = {"item_id": item_id, "item": item}
     return results
 
@@ -105,4 +105,78 @@ Data validation
 Automatic documentation
 """
 
-# Special types and validation
+# # Special types and validation
+# # untuk melihat validasi tipe data lainnya https://pydantic-docs.helpmanual.io/usage/types/
+
+from pydantic import HttpUrl 
+class Image2(BaseModel):
+    # contoh data model Image memiliki field bertipe url (string will be checked to be a valid URL)
+    url: HttpUrl
+    name: str
+
+
+class Itemss(BaseModel):
+    name: str
+    description: str | None = None
+    price: float
+    tax: float | None = None
+    tags: set[str] = set()
+    image: Image2 | None = None
+
+
+@app.put("/tipespesialdanvalidasi/items/{item_id}")
+async def update_item(item_id: int, item: Itemss):
+    results = {"item_id": item_id, "item": item}
+    return results
+
+# Attributes with lists of submodels
+class Item7(BaseModel):
+    name: str
+    description: str | None = None
+    price: float
+    tax: float | None = None
+    tags: set[str] = set()
+    #  use Pydantic models as subtypes of list, set, etc
+    images: list[Image2] | None = None
+
+
+@app.put("/atributdglistsofsubmodels/items/{item_id}")
+async def update_item(item_id: int, item: Item7):
+    results = {"item_id": item_id, "item": item}
+    return results
+
+# Deeply nested models
+class Offer(BaseModel):
+    name: str
+    description: str | None = None
+    price: float
+    items: list[Item7]
+
+
+@app.post("/offers/")
+async def create_offer(offer: Offer):
+    return offer
+
+# Bodies of pure lists
+"""
+If the top level value of the JSON body you expect is a JSON array (a Python list),
+you can declare the type in the parameter of the function, the same as in Pydantic models:
+images: List[Image]
+or in Python 3.9 and above:
+images: list[Image]
+"""
+@app.post("/images/multiple/")
+# ini dia
+async def create_multiple_images(images: list[Image2]):
+    return images
+
+# Bodies of arbitrary dict
+"""
+You can also declare a body as a dict with keys of some type and values of other type
+This would be useful if you want to receive keys that you don't already know.
+"""
+@app.post("/index-weights/")
+# weight adlh dictionary dg jenis int dan float (2 tipe yg berbeda). 
+# you would accept any dict as long as it has int keys with float values
+async def create_index_weights(weights: dict[int, float]):
+    return weights
