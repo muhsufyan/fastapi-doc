@@ -99,14 +99,14 @@ still recommended to use the ideas above, using multiple classes, instead of the
 This is because the JSON Schema generated in your app's OpenAPI (and the docs) will still be the one for the complete model, even if you use response_model_include or response_model_exclude to omit some attributes.
 This also applies to response_model_by_alias that works similarly.
 """
-class Item(BaseModel):
+class Item3(BaseModel):
     name: str
     description: str | None = None
     price: float
     tax: float = 10.5
 
 
-items = {
+itemss = {
     "foo": {"name": "Foo", "price": 50.2},
     "bar": {"name": "Bar", "description": "The Bar fighters", "price": 62, "tax": 20.2},
     "baz": {
@@ -120,15 +120,50 @@ items = {
 
 @app.get(
     "/items/{item_id}/name",
-    response_model=Item,
+    response_model=Item3,
     # BAGIAN INI
     # The syntax {"name", "description"} creates a set with those two values. It is equivalent to set(["name", "description"]).
     response_model_include={"name", "description"},
 )
 async def read_item_name(item_id: str):
-    return items[item_id]
+    return itemss[item_id]
 
 # BAGIAN INI
-@app.get("/items/{item_id}/public", response_model=Item, response_model_exclude={"tax"})
+@app.get("/items/{item_id}/public", response_model=Item3, response_model_exclude={"tax"})
 async def read_item_public_data(item_id: str):
-    return items[item_id]
+    return itemss[item_id]
+
+# Using lists instead of set
+# If you forget to use a set and use a list or tuple instead, FastAPI will still convert it to a set and it will work correctly
+class Item4(BaseModel):
+    name: str
+    description: str | None = None
+    price: float
+    tax: float = 10.5
+
+
+items3 = {
+    "foo": {"name": "Foo", "price": 50.2},
+    "bar": {"name": "Bar", "description": "The Bar fighters", "price": 62, "tax": 20.2},
+    "baz": {
+        "name": "Baz",
+        "description": "There goes my baz",
+        "price": 50.2,
+        "tax": 10.5,
+    },
+}
+
+
+@app.get(
+    "/items2/{item_id}/name",
+    response_model=Item4,
+    # INI, sblmnya {"name", "description"}
+    response_model_include=["name", "description"],
+)
+async def read_item_name(item_id: str):
+    return items3[item_id]
+
+# INI, sblmnya {"tax"}
+@app.get("/items2/{item_id}/public", response_model=Item4, response_model_exclude=["tax"])
+async def read_item_public_data(item_id: str):
+    return items3[item_id]

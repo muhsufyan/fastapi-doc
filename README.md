@@ -16,3 +16,8 @@ sedangkan untuk 3.10<br>
 adlh data model yg akan diberikan sebagai response ke user<br>
 DIREKOMENDASIKAN RESPONSE DATA MODEL ITU BERBEDA DENGAN DATA MODEL UNTUK DATABASE KARENA USER TDK BUTUH SEMUA DATA YG TER/DI- SIMPAN DLM DATABASE UNTUK DIPERLIHATKAN (AS RESPONSE DATA MODEL)<br>
 EmailString hars install dulu pip install email-validator or pip install pydantic[email].
+
+Use the path operation decorator's parameter response_model to define response models and especially to ensure private data is filtered out.
+
+Use response_model_exclude_unset to return only the values explicitly set.
+## ADA ERROR
