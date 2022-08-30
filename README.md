@@ -12,5 +12,7 @@ di python 3.6, OR pd param func menggunakan union<br>
 => q: Union[str, None] = None<br>
 sedangkan untuk 3.10<br>
 =>  q: str | None = None
-# Headers Parameters
-can define Header parameters the same way you define Query, Path and Cookie parameters.
+# Response Model
+adlh data model yg akan diberikan sebagai response ke user<br>
+DIREKOMENDASIKAN RESPONSE DATA MODEL ITU BERBEDA DENGAN DATA MODEL UNTUK DATABASE KARENA USER TDK BUTUH SEMUA DATA YG TER/DI- SIMPAN DLM DATABASE UNTUK DIPERLIHATKAN (AS RESPONSE DATA MODEL)<br>
+EmailString hars install dulu pip install email-validator or pip install pydantic[email].
