@@ -1,42 +1,39 @@
-# Add dependencies to the path operation decorator
+# A database dependency with yield
+# create a database session and close it after finishing.
+async def get_db():
+    db = DBSession()
+    # dg try error dr dependency, ex rollback, akan ditangkap & dpt diketahui melalui except SomeException
+    try:
+    #  yielded value is what is injected into path operations and other dependencies
+        yield db
+    # executed after the response has been delivered
+    finally:
+        db.close()
 
-from fastapi import Depends, FastAPI, Header, HTTPException
-
-app = FastAPI()
-
-# Dependency requirements. declare request requirements (like headers) or other sub-dependencies
-async def verify_token(x_token: str = Header()):
-    if x_token != "fake-super-secret-token":
-        # dependencies can raise exceptions, the same as normal dependencies
-        raise HTTPException(status_code=400, detail="X-Token header invalid")
-        # can return values or not, the values won't be used. FOR THIS NOT RETURN VALUE
-
-# Dependency requirements. declare request requirements (like headers) or other sub-dependencies
-async def verify_key(x_key: str = Header()):
-    if x_key != "fake-super-secret-key":
-        # dependencies can raise exceptions, the same as normal dependencies
-        raise HTTPException(status_code=400, detail="X-Key header invalid")
-    # can return values or not, the values won't be used. FOR THIS RETURN VALUE
-    return x_key
-
-# path operation decorator receives an optional argument dependencies. It should be a list of Depends()
-# return value (if they return any) won't be passed to your path operation function but the dependencies will be executed
-@app.get("/items/", dependencies=[Depends(verify_token), Depends(verify_key)])
-async def read_items():
-    return [{"item": "Foo"}, {"item": "Bar"}]
-
-# GLOBAL DEPENDENCY
-# if want add dependencies to the whole application
-
-# THIS GLOBAL DEPENDENCY
-app = FastAPI(dependencies=[Depends(verify_token), Depends(verify_key)])
+# Sub-dependencies with yield
+# ex dependency_c can have a dependency on dependency_b, and dependency_b on dependency_a
+from fastapi import Depends
 
 
-@app.get("/withglobaldependencies/items/")
-async def read_items():
-    return [{"item": "Portal Gun"}, {"item": "Plumbus"}]
+async def dependency_a():
+    dep_a = generate_dep_a()
+    try:
+        yield dep_a
+    finally:
+        dep_a.close()
 
 
-@app.get("/withglobaldependencies/users/")
-async def read_users():
-    return [{"username": "Rick"}, {"username": "Morty"}]
+async def dependency_b(dep_a=Depends(dependency_a)):
+    dep_b = generate_dep_b()
+    try:
+        yield dep_b
+    finally:
+        dep_b.close(dep_a)
+
+
+async def dependency_c(dep_b=Depends(dependency_b)):
+    dep_c = generate_dep_c()
+    try:
+        yield dep_c
+    finally:
+        dep_c.close(dep_b)

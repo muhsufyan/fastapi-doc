@@ -13,6 +13,7 @@ di python 3.6, OR pd param func menggunakan union<br>
 sedangkan untuk 3.10<br>
 =>  q: str | None = None
 
-# Dependencies in path operation decorators
-In some cases you don't really need the return value of a dependency But you still need it to be executed/solved<br>
-so you can add a list of dependencies to the path operation decorator.
+# Dependencies With yield
+do some extra steps after finishing, use yield instead of return, and write the extra steps after.<br>
+use yield one single time
+# MATERI YEILD INI SULIT JD BACA DI DOC 
