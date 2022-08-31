@@ -1,79 +1,87 @@
-from fastapi import FastAPI
-from fastapi.encoders import jsonable_encoder
-from pydantic import BaseModel
+from fastapi import Depends, FastAPI
 
 app = FastAPI()
 
 """
-data model input-nya berupa pydantic melalui class Item kita akan update
-dari pydantic model jd json
+An optional query parameter q that is a str.
+An optional query parameter skip that is an int, and by default is 0.
+An optional query parameter limit that is an int, and by default is 100
 """
-class Item(BaseModel):
-    name: str | None = None
-    description: str | None = None
-    price: float | None = None
-    tax: float = 10.5
-    tags: list[str] = []
+async def common_parameters(q: str | None = None, skip: int = 0, limit: int = 100):
+    # returns a dict
+    return {"q": q, "skip": skip, "limit": limit}
 
 
-items = {
-    "foo": {"name": "Foo", "price": 50.2},
-    "bar": {"name": "Bar", "description": "The bartenders", "price": 62, "tax": 20.2},
-    "baz": {"name": "Baz", "description": None, "price": 50.2, "tax": 10.5, "tags": []},
-}
+@app.get("/items/")
+# Declare the dependency, in the "dependant". fungsi read_items memerlukan/memanggil/menjlnkan fungsi common_parameters
+async def read_items(commons: dict = Depends(common_parameters)):
+    return commons
 
 
-@app.get("/items/{item_id}", response_model=Item)
-async def read_item(item_id: str):
-    return items[item_id]
+@app.get("/users/")
+# Declare the dependency, in the "dependant". fungsi read_users memerlukan/memanggil/menjlnkan fungsi common_parameters
+async def read_users(commons: dict = Depends(common_parameters)):
+    return commons
 
-# edit id item (convert) dari pydantic model jd json
-# Warning : saat update bar atribut tax itu 20 sedangkan defaultnya 10, bisa saja nilai yg diambil adlh defaultnya bkn 20
-# sedangkan untuk data yg tdk punya atribut tax akan diset default
-@app.put("/items/{item_id}", response_model=Item)
-async def update_item(item_id: str, item: Item):
-    update_item_encoded = jsonable_encoder(item)
-    items[item_id] = update_item_encoded
-    return update_item_encoded
+# Classes as dependencies
+# biasanya saat membuat instansiasi dr suatu class
+class Cat:
+    # constructor
+    def __init__(self, name: str):
+        self.name = name
 
-# Partial updates with PATCH
-# mungkin kita hanya ingin mengubah data tertentu saja (tdk semua data) maka gunakan http PATCH bukan PUT
 
-# Using Pydantic's exclude_unset parameter
-# partial updates, very useful to use the parameter exclude_unset in Pydantic's model's .dict().
-# contoh item.dict(exclude_unset=True)
-# That would generate a dict with only the data that was set when creating the item model, excluding(tdk termasuk) default values
-# Then you can use this to generate a dict with only the data that was set (sent in the request), omitting(menghilangkan) default values
-@app.patch("/items/{item_id}", response_model=Item)
-async def update_item(item_id: str, item: Item):
-    stored_item_data = items[item_id]
-    stored_item_model = Item(**stored_item_data)
-    update_data = item.dict(exclude_unset=True)
-    updated_item = stored_item_model.copy(update=update_data)
-    items[item_id] = jsonable_encoder(updated_item)
-    return updated_item
+fluffy = Cat(name="Mr Fluffy")
+print(fluffy)
 
-# Using Pydantic's update parameter
-"""
- you can create a copy of the existing model using .copy(),
- and pass the update parameter with a dict containing the data to update.
-Like stored_item_model.copy(update=update_data)
-"""
-@app.patch("/pydanticupdateparameter/items/{item_id}", response_model=Item)
-async def update_item(item_id: str, item: Item):
-    stored_item_data = items[item_id]
-    stored_item_model = Item(**stored_item_data)
-    update_data = item.dict(exclude_unset=True)
-    updated_item = stored_item_model.copy(update=update_data)
-    items[item_id] = jsonable_encoder(updated_item)
-    return updated_item
+fake_items_db = [{"item_name": "Foo"}, {"item_name": "Bar"}, {"item_name": "Baz"}]
 
-# Partial updates recap, BACA DI DOC/README.md
-@app.patch("/Partialupdatesrecap/items/{item_id}", response_model=Item)
-async def update_item(item_id: str, item: Item):
-    stored_item_data = items[item_id]
-    stored_item_model = Item(**stored_item_data)
-    update_data = item.dict(exclude_unset=True)
-    updated_item = stored_item_model.copy(update=update_data)
-    items[item_id] = jsonable_encoder(updated_item)
-    return updated_item
+class CommonQueryParams:
+    def __init__(self, q: str | None = None, skip: int = 0, limit: int = 100):
+        self.q = q
+        self.skip = skip
+        self.limit = limit
+
+
+@app.get("/classASdependencies/items/")
+# read_items akan menjlnkan/memanggil commons yg bertipe CommonQueryParams, sedangkan CommonQueryParams sendiri mrpkn suatu class CommonQueryParams
+async def read_items(commons: CommonQueryParams = Depends(CommonQueryParams)):
+    response = {}
+    if commons.q:
+        response.update({"q": commons.q})
+    items = fake_items_db[commons.skip : commons.skip + commons.limit]
+    response.update({"items": items})
+    return response
+
+# kode diatas (class as dependencies) akan sama dg kode dibawah (outputnya), kode dibawah dependency-nya berupa function
+async def common_parameters_func(q: str | None = None, skip: int = 0, limit: int = 100):
+    return {"q": q, "skip": skip, "limit": limit}
+
+
+@app.get("/dependencyfunc/items/")
+async def read_items(commons: dict = Depends(common_parameters_func)):
+    return commons
+
+
+@app.get("/dependencyfunc/users/")
+async def read_users(commons: dict = Depends(common_parameters_func)):
+    return commons
+
+# cara diatas CommonQueryParams ditulis 2x, cara lainnya sbb
+@app.get("/short1/items/")
+async def read_items(commons=Depends(CommonQueryParams)):
+    response = {}
+    if commons.q:
+        response.update({"q": commons.q})
+    items = fake_items_db[commons.skip : commons.skip + commons.limit]
+    response.update({"items": items})
+    return response
+
+@app.get("/short2/items/")
+async def read_items(commons: CommonQueryParams = Depends()):
+    response = {}
+    if commons.q:
+        response.update({"q": commons.q})
+    items = fake_items_db[commons.skip : commons.skip + commons.limit]
+    response.update({"items": items})
+    return response
