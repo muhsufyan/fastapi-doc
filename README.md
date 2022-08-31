@@ -12,6 +12,7 @@ di python 3.6, OR pd param func menggunakan union<br>
 => q: Union[str, None] = None<br>
 sedangkan untuk 3.10<br>
 =>  q: str | None = None
-# REQUEST Form input & FILE (upload file)
-install dulu => pip install python-multipart<br>
-kita bisa upload file dan input form secara bersamaan
+# HANDLING ERROR
+misalnya 404, tidak punya hak akses, harus login, bug code (500)<br>
+When raising an HTTPException, you can pass any value that can be converted to JSON as the parameter detail, not only str<BR>
+bagian FastAPI's HTTPException vs Starlette's HTTPException baca https://fastapi.tiangolo.com/tutorial/handling-errors/#fastapis-httpexception-vs-starlettes-httpexception
