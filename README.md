@@ -12,7 +12,6 @@ di python 3.6, OR pd param func menggunakan union<br>
 => q: Union[str, None] = None<br>
 sedangkan untuk 3.10<br>
 =>  q: str | None = None
-# REQUEST FILE (upload file)
+# REQUEST Form input & FILE (upload file)
 install dulu => pip install python-multipart<br>
-kita perlu <b>File</b> param untuk upload<br>
-The files will be uploaded as "form data".
+kita bisa upload file dan input form secara bersamaan
