@@ -11,4 +11,6 @@ di python 3.6, OR pd param func menggunakan union<br>
 => q: Union[str, None] = None<br>
 sedangkan untuk 3.10<br>
 =>  q: str | None = None
-# Path Operation Configuration
+# JSON Compatible Encoder
+ada kalanya perlu convert dr pydantic/yg lainnya jd json<br>
+& ex data disimpan ke db hrs json maka gunakan jsonable_encoder()
