@@ -11,6 +11,20 @@ di python 3.6, OR pd param func menggunakan union<br>
 => q: Union[str, None] = None<br>
 sedangkan untuk 3.10<br>
 =>  q: str | None = None
-# JSON Compatible Encoder
-ada kalanya perlu convert dr pydantic/yg lainnya jd json<br>
-& ex data disimpan ke db hrs json maka gunakan jsonable_encoder()
+# BODY UPDATE
+untuk update
+## Partial updates recap
+* (Optionally) use PATCH instead of PUT.
+* Retrieve the stored data.
+* Put that data in a Pydantic model.
+* Generate a dict without default values from the input model (using exclude_unset).
+    * This way you can update only the values actually set by the user, instead of overriding values already stored with default values in your model.<br>
+
+
+* Create a copy of the stored model, updating it's attributes with the received partial updates (using the update parameter).
+* Convert the copied model to something that can be stored in your DB (for example, using the jsonable_encoder).
+    *This is comparable to using the model's .dict() method again, but it makes sure (and converts) the values to data types that can be converted to JSON, for example, datetime to str.<br>
+
+
+* Save the data to your DB.
+* Return the updated model.
