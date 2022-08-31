@@ -1,5 +1,5 @@
-# fastapi-doc bagian 2
-membahas cookies, headers, response ke user, kode http response
+# fastapi-doc bagian 3
+INPUT FORM, FILE UPLOAD
 ## how to run
 python -m venv virtualenv<br>
 windows => .\virtualenv\Scripts\activate.bat<br>
@@ -12,10 +12,12 @@ di python 3.6, OR pd param func menggunakan union<br>
 => q: Union[str, None] = None<br>
 sedangkan untuk 3.10<br>
 =>  q: str | None = None
-# STATUS CODE
-status code ke user/developer lainnya. lbh lanjut mengenai status kode yg dpt diberikan https://docs.python.org/3/library/http.html#http.HTTPStatus<br>
-SELAIN ITU KITA JUGA LANGSUNG MEMPELAJARI CHANGE STATUS CODE DIBAGIAN ADVANCE
-# CHANGE STATUS CODE (ADVANCE)
-https://fastapi.tiangolo.com/advanced/response-change-status-code/
-kasus ini kita ubah jika data yg di update tdk ada maka akan disuruh untuk create a new data melalui status http 201<br>
-Maka gunakan Response parameter untuk mengubah status code & tempatkan di path operation function (sama sprti cookie & headers)
+# FORM DATA
+data input selain berupa json dpt pula form input, gunakan Form<br>
+install dulu => pip install python-multipart.<br>
+With <b>Form</b> you can declare the same metadata and validation as with <b>Body</b> (and <b>Query, Path, Cookie</b>). karena <b>Form</b> is a class that inherits directly from <b>Body</b>.<br>
+Data from forms is normally encoded using the "media type" application/x-www-form-urlencoded.
+But when the form includes files, it is encoded as multipart/form-data<br>
+WARNING: You can declare multiple Form parameters in a path operation, but you can't also declare Body fields that you expect to receive as JSON, as the request will have the body encoded using application/x-www-form-urlencoded instead of application/json.
+
+<BR>This is not a limitation of FastAPI, it's part of the HTTP protocol.
