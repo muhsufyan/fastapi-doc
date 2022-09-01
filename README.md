@@ -13,7 +13,6 @@ di python 3.6, OR pd param func menggunakan union<br>
 sedangkan untuk 3.10<br>
 =>  q: str | None = None
 
-# Dependencies With yield
-do some extra steps after finishing, use yield instead of return, and write the extra steps after.<br>
-use yield one single time
-# MATERI YEILD INI SULIT JD BACA DI DOC 
+# First Steps
+pip install python-multipart<br>
+baca materi berikut https://fastapi.tiangolo.com/tutorial/security/first-steps/#the-password-flow <br>
