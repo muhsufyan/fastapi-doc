@@ -16,5 +16,6 @@ sedangkan untuk 3.10<br>
 # JWT WITH HASH PASSWORD
 untuk hash pass kita gunakan bcrypt<br>
 pip install "passlib[bcrypt]"<br>
+untuk jwt install => pip install "python-jose[cryptography]"<br>
 To generate a secure random secret key use the command => openssl rand -hex 32<br>
 untuk test isi => Username: johndoe Password: secret<br>
