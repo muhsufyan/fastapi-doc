@@ -13,6 +13,5 @@ di python 3.6, OR pd param func menggunakan union<br>
 sedangkan untuk 3.10<br>
 =>  q: str | None = None
 
-# First Steps
-pip install python-multipart<br>
-baca materi berikut https://fastapi.tiangolo.com/tutorial/security/first-steps/#the-password-flow <br>
+# Get Current User
+saya tidak tahu bagaimana cara menggunakan untuk test OAuth2
