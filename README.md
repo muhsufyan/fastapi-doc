@@ -12,7 +12,8 @@ di python 3.6, OR pd param func menggunakan union<br>
 sedangkan untuk 3.10<br>
 =>  q: str | None = None
 
-# Static Files
-ex asset logo, logo perusahaan/startup, dll<br>
-serve static files automatically from a directory using <b>StaticFiles</b><br>
-buat folder namanya static, karena directory isinya static => StaticFiles(directory="static/"), name="static")<br>
+# Testing
+pip install requests<br>
+pip install pytest<br>
+memakai pytest, nama diawali test_<br>
+untuk run testing gunakan perintah => pytest<br>
