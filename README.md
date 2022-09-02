@@ -4,7 +4,7 @@
 python -m venv virtualenv<br>
 windows => .\virtualenv\Scripts\activate.bat<br>
 update => virtualenv\Scripts\python.exe -m pip install --upgrade pip<br>
-run => uvicorn main:app --reload<br>
+run => uvicorn app.main:app --reload<br>
 * dimana main adlah file main.py & app adlah FastAPI()<br>
 # note
 di python 3.6, OR pd param func menggunakan union<br>
