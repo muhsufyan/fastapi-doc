@@ -1,3 +1,4 @@
+# declare global dependencies that will be combined with the dependencies for each APIRouter. sub bagian (APIRouter) disatukan disini (main)
 from fastapi import Depends, FastAPI
 
 from .dependencies import get_query_token, get_token_header
