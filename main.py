@@ -1,49 +1,84 @@
-# agar dpt berjln dibelakang layar (background) gunakan BackgroundTasks
-from fastapi import BackgroundTasks, FastAPI
+from fastapi import FastAPI
 
-app = FastAPI()
+# Metadata for API
+description = """
+ChimichangApp API helps you do awesome stuff. 🚀
 
-# this func run as the background task. the task function will write to a file (simulating sending an email).
-def write_notification(email: str, message=""):
-    with open("log.txt", mode="w") as email_file:
-        content = f"notification for {email}: {message}"
-        email_file.write(content)
+## Items
 
+You can **read items**.
 
-@app.post("/send-notification/{email}")
-async def send_notification(email: str, background_tasks: BackgroundTasks):
-    # Add the background task with .add_task on BackgroundTasks
-    background_tasks.add_task(write_notification, email, message="some notification")
-    return {"message": "Notification sent in the background"}
+## Users
+
+You will be able to:
+
+* **Create users** (_not implemented_).
+* **Read users** (_not implemented_).
 """
-pd kode diatas,
-.add_task() receives as arguments:
 
-* A task function to be run in the background (write_notification). write_notification adlh fungsi yg kita buat
-* Any sequence of arguments that should be passed to the task function in order (email).
-* Any keyword arguments that should be passed to the task function (message="some notification").
+app = FastAPI(
+    # Metadata for API
+    title="ChimichangApp",
+    description=description,
+    version="0.0.1",
+    terms_of_service="http://example.com/terms/",
+    contact={
+        "name": "Deadpoolio the Amazing",
+        "url": "http://x-force.example.com/contact/",
+        "email": "dp@x-force.example.com",
+    },
+    license_info={
+        "name": "Apache 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0.html",
+    },
+)
+
+
+@app.get("/metadata/API/items/")
+async def read_items():
+    return [{"name": "Katana"}]
+
+# Metadata for tags
+
+# Create metadata for tags. tags for users and items
+tags_metadata = [
+    {
+        "name": "users",
+        "description": "Operations with users. The **login** logic is also here.",
+    },
+    {
+        "name": "items",
+        "description": "Manage items. So _fancy_ they have their own docs.",
+        "externalDocs": {
+            "description": "Items external docs",
+            "url": "https://fastapi.tiangolo.com/",
+        },
+    },
+]
+# add additional metadata for the different tags used to group your path operations with the parameter openapi_tags
+app = FastAPI(openapi_tags=tags_metadata)
+
+# Use the tags parameter with your path operations (and APIRouters) to assign them to different tags
+@app.get("/metadata/tags/users/", tags=["users"])
+async def get_users():
+    return [{"name": "Harry"}, {"name": "Ron"}]
+
+# Use the tags parameter with your path operations (and APIRouters) to assign them to different tags
+@app.get("/metadata/tags/items/", tags=["items"])
+async def get_items():
+    return [{"name": "wand"}, {"name": "flying broom"}]
+
+
+# OpenAPI URL
 """
-# DI
-from fastapi import Depends
-#  can declare a parameter of type BackgroundTasks at multiple levels: in a path operation function, in a dependency (dependable), in a sub-dependency, etc.
-def write_log(message: str):
-    with open("log.txt", mode="a") as log:
-        log.write(message)
+By default, the OpenAPI schema is served at /openapi.json.
+But you can configure it with the parameter openapi_url.
+For example, to set it to be served at /api/v1/openapi.json
+"""
 
-# declare a parameter of type BackgroundTasks at path operation function
-def get_query(background_tasks: BackgroundTasks, q: str | None = None):
-    if q:
-        message = f"found query: {q}\n"
-        background_tasks.add_task(write_log, message)
-    return q
+app = FastAPI(openapi_url="/api/v1/openapi.json")
 
 
-@app.post("/DI/send-notification/{email}")
-async def send_notification(
-    # declare a parameter of type BackgroundTasks at dependencies
-    email: str, background_tasks: BackgroundTasks, q: str = Depends(get_query)
-):
-    message = f"message to {email}\n"
-    # declare a parameter of type BackgroundTasks at sub-dependencies
-    background_tasks.add_task(write_log, message)
-    return {"message": "Message sent"}
+@app.get("/items/")
+async def read_items():
+    return [{"name": "Foo"}]

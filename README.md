@@ -4,7 +4,9 @@
 python -m venv virtualenv<br>
 windows => .\virtualenv\Scripts\activate.bat<br>
 update => virtualenv\Scripts\python.exe -m pip install --upgrade pip<br>
-run => uvicorn main:app --reload<br>
+run Metadata for API => uvicorn main:app --reload<br>
+run Metadata for tags => uvicorn main2:app --reload<br>
+run OpenAPI URL => uvicorn main3:app --reload<br>
 * dimana app adlh root dir, main adlah file main.py & app adlah FastAPI()<br>
 # note
 di python 3.6, OR pd param func menggunakan union<br>
@@ -12,9 +14,5 @@ di python 3.6, OR pd param func menggunakan union<br>
 sedangkan untuk 3.10<br>
 =>  q: str | None = None
 
-# Background Task
-menjalankan fungsi/class/code dibelakang layar (background) tanpa mengganggu user<br>
-ex mengirim notif ke user via email dimana kode untuk notif akan dijalankan dibelakang layar (background)<br>
-di doc nya disbt background task adlh run after returning a response<br>
-js client doesn't really have to be waiting for the operation to complete before receiving the response<br>
-ex lainnya, Processing data: let's say you receive a file that must go through a slow process, you can return a response of "Accepted" (HTTP 202) and process it in the background.
+# Metadata & Docs URL
+BACA TABEL DISINI https://fastapi.tiangolo.com/tutorial/metadata/#metadata-for-api<br>
